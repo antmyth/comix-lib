@@ -1,0 +1,8 @@
+database:
+  port: "5432"
+  host: "localhost"
+  name: "comix"
+  user: "postgres"
+  password: "abc"
+
+path: "/Volumes/backups/_eComics/_newlib"
