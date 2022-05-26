@@ -61,7 +61,8 @@ func FromImageView(v view.Image) Image {
 	}
 }
 
-func (issue Issue) FromView(v view.Issue) Issue {
+func FromIssueView(v view.Issue) Issue {
+	issue := Issue{}
 	issue.ID = uint(v.ID)
 	issue.Title = v.Title
 	issue.Series = v.Series
@@ -76,11 +77,21 @@ func (issue Issue) FromView(v view.Issue) Issue {
 	si := vine.ExtractIdFromCompoundId(ci)
 	ssi, _ := strconv.Atoi(si)
 	issue.SeriesId = uint(ssi)
-	issue.Images = Image{
-		SmallUrl:    v.Images.SmallUrl,
-		ThumbUrl:    v.Images.ThumbUrl,
-		TinyUrl:     v.Images.TinyUrl,
-		OriginalUrl: v.Images.OriginalUrl,
-	}
+	issue.Images = FromImageView(v.Images)
 	return issue
+}
+
+func FromSeriesView(v view.Series) Series {
+	s := Series{}
+	s.ID = uint(v.ID)
+	s.VineId = vine.ExtractIdFromSiteUrl(v.Web)
+	s.Series = v.Series
+	s.Volume = v.Volume
+	s.Publisher = v.Publisher
+	s.TotalCount = v.TotalCount
+	s.Web = v.Web
+	s.Location = v.Location
+	s.Description = v.Description
+	s.Images = FromImageView(v.Images)
+	return s
 }

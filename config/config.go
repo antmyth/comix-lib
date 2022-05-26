@@ -15,7 +15,11 @@ type Config struct {
 		Password string `yaml:"password" env:"DB_PASSWORD" env-description:"Database user password"`
 		Name     string `yaml:"name" env:"DB_NAME" env-description:"Database name"`
 	} `yaml:"database"`
-	Path string `yaml:"path" env:"LIB_PATH" env-description:"CBZ lib path"`
+	Path   string `yaml:"path" env:"LIB_PATH" env-description:"CBZ lib path"`
+	Import struct {
+		ChunkSize int `yaml:"chunk" env-description:"Chunk size for cbz file processing"`
+		MaxImport int `yaml:"max" env-description:"Number of issues to import per sexxion"`
+	} `yaml:"import"`
 }
 
 func ReadConfig() Config {

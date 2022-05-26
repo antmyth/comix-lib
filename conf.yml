@@ -6,3 +6,7 @@ database:
   password: "abc"
 
 path: "/Volumes/backups/_eComics/_newlib"
+
+import:
+  chunk: 10
+  max: 10
