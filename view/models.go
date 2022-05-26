@@ -26,6 +26,7 @@ type Issue struct {
 	ID             int    `json:"id,omitempty"`
 	Title          string `json:"title"`
 	Series         string `json:"series"`
+	SeriesId       int    `json:"seriesId"`
 	Number         string `json:"number"`
 	Volume         string `json:"volume,omitempty"`
 	Publisher      string `json:"publisher,omitempty"`

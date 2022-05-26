@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/antmyth/comix-lib/comicvine"
@@ -52,12 +51,38 @@ type Image struct {
 	OriginalUrl string
 }
 
+func (i Image) AsView() view.Image {
+	return view.Image{
+		SmallUrl:    i.SmallUrl,
+		ThumbUrl:    i.ThumbUrl,
+		TinyUrl:     i.TinyUrl,
+		OriginalUrl: i.OriginalUrl,
+	}
+}
+
 func FromImageView(v view.Image) Image {
 	return Image{
 		SmallUrl:    v.SmallUrl,
 		ThumbUrl:    v.ThumbUrl,
 		TinyUrl:     v.TinyUrl,
 		OriginalUrl: v.OriginalUrl,
+	}
+}
+
+func (v Issue) AsView() view.Issue {
+	return view.Issue{
+		ID:             int(v.ID),
+		Title:          v.Title,
+		Series:         v.Series,
+		SeriesId:       int(v.SeriesId),
+		Number:         v.Number,
+		Volume:         v.Volume,
+		Publisher:      v.Publisher,
+		Web:            v.Web,
+		VolumeAPI:      v.VolumeAPI,
+		SeriesLocation: v.SeriesLocation,
+		Location:       v.Location,
+		Images:         v.Images.AsView(),
 	}
 }
 
@@ -73,18 +98,32 @@ func FromIssueView(v view.Issue) Issue {
 	issue.VolumeAPI = v.VolumeAPI
 	issue.SeriesLocation = v.SeriesLocation
 	issue.Location = v.Location
-	ci := vine.ExtractIdFromSiteUrl(v.VolumeAPI)
-	si := vine.ExtractIdFromCompoundId(ci)
-	ssi, _ := strconv.Atoi(si)
+	ssi := comicvine.ExtractNumIdFromSiteUrl(v.VolumeAPI)
 	issue.SeriesId = uint(ssi)
 	issue.Images = FromImageView(v.Images)
 	return issue
 }
 
+func (s Series) AsView() view.Series {
+	return view.Series{
+		ID:          int(s.ID),
+		VineId:      s.VineId,
+		Series:      s.Series,
+		Volume:      s.Volume,
+		Publisher:   s.Publisher,
+		Count:       s.Count,
+		TotalCount:  s.TotalCount,
+		Web:         s.Web,
+		Images:      s.Images.AsView(),
+		Location:    s.Location,
+		Description: s.Description,
+	}
+}
+
 func FromSeriesView(v view.Series) Series {
 	s := Series{}
 	s.ID = uint(v.ID)
-	s.VineId = vine.ExtractIdFromSiteUrl(v.Web)
+	s.VineId = comicvine.ExtractIdFromSiteUrl(v.Web)
 	s.Series = v.Series
 	s.Volume = v.Volume
 	s.Publisher = v.Publisher

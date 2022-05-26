@@ -8,30 +8,35 @@ import (
 	"github.com/antmyth/comix-lib/cbz"
 	"github.com/antmyth/comix-lib/comicvine"
 	"github.com/antmyth/comix-lib/config"
-	"github.com/antmyth/comix-lib/dao"
+	"github.com/antmyth/comix-lib/library"
 	"github.com/antmyth/comix-lib/view"
-	"gorm.io/gorm"
 )
 
 var cfg config.Config
-var db *gorm.DB
+
 var vine comicvine.ComicVine
+var lib *library.ComicsLib
 
 func main() {
 	cfg = config.ReadConfig()
-	db = dao.GetConnection(cfg)
 	vine = comicvine.ComicVine{}
-
-	//migrate the schema
-	err := db.AutoMigrate(&dao.Series{}, &dao.Issue{})
+	libz, err := library.New()
 	if err != nil {
-		fmt.Println(err)
 		panic(err)
 	}
-	log.Println("Finished DB migrations")
+	lib = libz
 
-	BuildLib()
+	ss := lib.GetAllSeries()
 
+	for i, v := range ss {
+		log.Printf("Series[%v] - %v\n", i, v.Series)
+	}
+	si := lib.GetAllIssuesFor(ss[2])
+	for i, v := range si {
+		log.Printf("Issue[%v] - %v:%v\n", i, v.Number, v.Title)
+	}
+	log.Println(lib.GetSeriesByIDWithIssues(ss[16].ID))
+	// BuildLib()
 }
 
 func BuildLib() {
@@ -93,17 +98,14 @@ func BuildLib() {
 
 	// store series on DB
 	for _, v := range series {
-		s := dao.FromSeriesView(v)
-		res := db.Create(&s)
-		log.Printf("Inserted Series %v with success?%v\n", s.ID, res.RowsAffected)
+		res := lib.InsertSeries(v)
+		log.Printf("Inserted Series %v with success?%v\n", v.ID, res)
 	}
 
 	//store issues on DB
 	for _, v := range newIssues {
-		dbIss := dao.FromIssueView(v)
-
-		res := db.Create(&dbIss)
-		log.Printf("Inserted Issue %v with success?%v\n", v.ID, res.RowsAffected)
+		res := lib.InsertIssue(v)
+		log.Printf("Inserted Issue %v with success?%v\n", v.ID, res)
 	}
 
 }
@@ -111,20 +113,18 @@ func BuildLib() {
 func FilterOutExistingIssues(newIssues *[]view.Issue, issues []view.Issue) {
 	//check if issue exists on DB
 	for _, v := range issues {
-		var iss []dao.Issue
-		compoundId := vine.ExtractIdFromSiteUrl(v.Web)
-		id := vine.ExtractIdFromCompoundId(compoundId)
-		db.Find(&iss, id)
-		if len(iss) == 0 {
+		id := comicvine.ExtractNumIdFromSiteUrl(v.Web)
+		if lib.GetIssueByID(id) == nil {
 			*newIssues = append(*newIssues, v)
 			log.Printf("New issue to add to the DB:%v\n", id)
+
 		}
 	}
 }
 
 func EnrichIssueWithVineData(issue view.Issue) view.Issue {
 	log.Printf("Extracting images for %s", issue.Web)
-	issueKey := vine.ExtractIdFromSiteUrl(issue.Web)
+	issueKey := comicvine.ExtractIdFromSiteUrl(issue.Web)
 	cvIssue := vine.GetIssue(issueKey)
 	issue.Images = cvIssue.Image.FromComicVine()
 	issue.ID = cvIssue.ID

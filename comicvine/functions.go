@@ -6,8 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"regexp"
-	"strings"
 
 	"github.com/antmyth/comix-lib/view"
 )
@@ -61,16 +59,6 @@ func executeRequest(resource, id string) string {
 	}
 
 	return bodyString
-}
-
-func (cv ComicVine) ExtractIdFromSiteUrl(url string) string {
-	r, _ := regexp.Compile("\\d+-\\d+")
-	issueId := r.FindString(url)
-	return issueId
-}
-
-func (cv ComicVine) ExtractIdFromCompoundId(compound string) string {
-	return strings.Split(compound, "-")[1]
 }
 
 func (cvImg Image) FromComicVine() view.Image {
