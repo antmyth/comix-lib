@@ -14,6 +14,7 @@ var cfg config.Config
 var db *gorm.DB
 
 func New() (*ComicsLib, error) {
+	log.Println("Starting Lib init")
 	cfg = config.ReadConfig()
 	db = dao.GetConnection(cfg)
 
