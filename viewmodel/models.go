@@ -2,6 +2,11 @@ package viewmodel
 
 import "fmt"
 
+func New() *Image {
+	res := Image{}
+	return &res
+}
+
 type ComicsLib struct {
 	SeriesCount int      `json:"seriesCount"`
 	SeriesList  []Series `json:"seriesList"`
