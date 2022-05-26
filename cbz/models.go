@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/antmyth/comix-lib/comicvine"
-	"github.com/antmyth/comix-lib/view"
+	"github.com/antmyth/comix-lib/viewmodel"
 )
 
 type ComicInfo struct {
@@ -50,8 +50,8 @@ type ComicPage struct {
 	Type        string `xml:"Type,attr"`
 }
 
-func (ci ComicInfo) ToSeriesDB() view.Series {
-	return view.Series{
+func (ci ComicInfo) ToSeriesDB() viewmodel.Series {
+	return viewmodel.Series{
 		Count:     1,
 		Publisher: ci.Publisher,
 		Series:    ci.Series,
@@ -59,11 +59,11 @@ func (ci ComicInfo) ToSeriesDB() view.Series {
 	}
 }
 
-func (ci ComicInfo) ToIssueDB() view.Issue {
+func (ci ComicInfo) ToIssueDB() viewmodel.Issue {
 	compoundId := comicvine.ExtractIdFromSiteUrl(ci.Web)
 	sid := comicvine.ExtractIdFromCompoundId(compoundId)
 	id, _ := strconv.Atoi(sid)
-	return view.Issue{
+	return viewmodel.Issue{
 		ID:        id,
 		Title:     ci.Title,
 		Number:    ci.Number,

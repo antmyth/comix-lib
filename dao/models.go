@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/antmyth/comix-lib/comicvine"
-	"github.com/antmyth/comix-lib/view"
+	"github.com/antmyth/comix-lib/viewmodel"
 )
 
 var vine comicvine.ComicVine
@@ -51,8 +51,8 @@ type Image struct {
 	OriginalUrl string
 }
 
-func (i Image) AsView() view.Image {
-	return view.Image{
+func (i Image) Asviewmodel() viewmodel.Image {
+	return viewmodel.Image{
 		SmallUrl:    i.SmallUrl,
 		ThumbUrl:    i.ThumbUrl,
 		TinyUrl:     i.TinyUrl,
@@ -60,7 +60,7 @@ func (i Image) AsView() view.Image {
 	}
 }
 
-func FromImageView(v view.Image) Image {
+func FromImageviewmodel(v viewmodel.Image) Image {
 	return Image{
 		SmallUrl:    v.SmallUrl,
 		ThumbUrl:    v.ThumbUrl,
@@ -69,8 +69,8 @@ func FromImageView(v view.Image) Image {
 	}
 }
 
-func (v Issue) AsView() view.Issue {
-	return view.Issue{
+func (v Issue) Asviewmodel() viewmodel.Issue {
+	return viewmodel.Issue{
 		ID:             int(v.ID),
 		Title:          v.Title,
 		Series:         v.Series,
@@ -82,11 +82,11 @@ func (v Issue) AsView() view.Issue {
 		VolumeAPI:      v.VolumeAPI,
 		SeriesLocation: v.SeriesLocation,
 		Location:       v.Location,
-		Images:         v.Images.AsView(),
+		Images:         v.Images.Asviewmodel(),
 	}
 }
 
-func FromIssueView(v view.Issue) Issue {
+func FromIssueviewmodel(v viewmodel.Issue) Issue {
 	issue := Issue{}
 	issue.ID = uint(v.ID)
 	issue.Title = v.Title
@@ -100,12 +100,12 @@ func FromIssueView(v view.Issue) Issue {
 	issue.Location = v.Location
 	ssi := comicvine.ExtractNumIdFromSiteUrl(v.VolumeAPI)
 	issue.SeriesId = uint(ssi)
-	issue.Images = FromImageView(v.Images)
+	issue.Images = FromImageviewmodel(v.Images)
 	return issue
 }
 
-func (s Series) AsView() view.Series {
-	return view.Series{
+func (s Series) Asviewmodel() viewmodel.Series {
+	return viewmodel.Series{
 		ID:          int(s.ID),
 		VineId:      s.VineId,
 		Series:      s.Series,
@@ -114,13 +114,13 @@ func (s Series) AsView() view.Series {
 		Count:       s.Count,
 		TotalCount:  s.TotalCount,
 		Web:         s.Web,
-		Images:      s.Images.AsView(),
+		Images:      s.Images.Asviewmodel(),
 		Location:    s.Location,
 		Description: s.Description,
 	}
 }
 
-func FromSeriesView(v view.Series) Series {
+func FromSeriesviewmodel(v viewmodel.Series) Series {
 	s := Series{}
 	s.ID = uint(v.ID)
 	s.VineId = comicvine.ExtractIdFromSiteUrl(v.Web)
@@ -131,6 +131,6 @@ func FromSeriesView(v view.Series) Series {
 	s.Web = v.Web
 	s.Location = v.Location
 	s.Description = v.Description
-	s.Images = FromImageView(v.Images)
+	s.Images = FromImageviewmodel(v.Images)
 	return s
 }

@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/antmyth/comix-lib/view"
+	"github.com/antmyth/comix-lib/viewmodel"
 )
 
-func BuildSeriesFromIssueAndVine(i view.Issue, vine ComicVine) view.Series {
-	s := view.Series{}
+func BuildSeriesFromIssueAndVine(i viewmodel.Issue, vine ComicVine) viewmodel.Series {
+	s := viewmodel.Series{}
 	s.Publisher = i.Publisher
 	s.Series = i.Series
 	s.Volume = i.Volume

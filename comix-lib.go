@@ -9,7 +9,7 @@ import (
 	"github.com/antmyth/comix-lib/comicvine"
 	"github.com/antmyth/comix-lib/config"
 	"github.com/antmyth/comix-lib/library"
-	"github.com/antmyth/comix-lib/view"
+	"github.com/antmyth/comix-lib/viewmodel"
 )
 
 var cfg config.Config
@@ -44,8 +44,8 @@ func BuildLib() {
 	importSize := cfg.Import.MaxImport
 
 	cbz := cbz.CBZ{}
-	issues := make([]view.Issue, 0)
-	newIssues := make([]view.Issue, 0)
+	issues := make([]viewmodel.Issue, 0)
+	newIssues := make([]viewmodel.Issue, 0)
 
 	//Start reading CBZ info
 	inputFiles, err := ioutil.ReadDir(cfg.Path)
@@ -71,7 +71,7 @@ func BuildLib() {
 				}
 				if (index % chunkSize) == 0 {
 					FilterOutExistingIssues(&newIssues, issues)
-					issues = make([]view.Issue, 0)
+					issues = make([]viewmodel.Issue, 0)
 					if len(newIssues) >= importSize {
 						break
 					}
@@ -89,8 +89,8 @@ func BuildLib() {
 	}
 
 	// Group issues by Series and generate Series records
-	m := view.AsSeriesMap(newIssues)
-	series := make([]view.Series, 0)
+	m := viewmodel.AsSeriesMap(newIssues)
+	series := make([]viewmodel.Series, 0)
 	for _, v := range m {
 		s := comicvine.BuildSeriesFromIssueAndVine(v[0], vine)
 		series = append(series, s)
@@ -110,7 +110,7 @@ func BuildLib() {
 
 }
 
-func FilterOutExistingIssues(newIssues *[]view.Issue, issues []view.Issue) {
+func FilterOutExistingIssues(newIssues *[]viewmodel.Issue, issues []viewmodel.Issue) {
 	//check if issue exists on DB
 	for _, v := range issues {
 		id := comicvine.ExtractNumIdFromSiteUrl(v.Web)
@@ -122,7 +122,7 @@ func FilterOutExistingIssues(newIssues *[]view.Issue, issues []view.Issue) {
 	}
 }
 
-func EnrichIssueWithVineData(issue view.Issue) view.Issue {
+func EnrichIssueWithVineData(issue viewmodel.Issue) viewmodel.Issue {
 	log.Printf("Extracting images for %s", issue.Web)
 	issueKey := comicvine.ExtractIdFromSiteUrl(issue.Web)
 	cvIssue := vine.GetIssue(issueKey)

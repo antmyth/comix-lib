@@ -8,7 +8,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/antmyth/comix-lib/view"
+	"github.com/antmyth/comix-lib/viewmodel"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 
 type CBZ struct{}
 
-func (cbz CBZ) BuildIssueFromCBZ(fname, parent string) *view.Issue {
+func (cbz CBZ) BuildIssueFromCBZ(fname, parent string) *viewmodel.Issue {
 	if !strings.HasPrefix(fname, ".") && strings.HasSuffix(fname, cbzSuffix) {
 		fullPath := fmt.Sprintf("%s/%s", parent, fname)
 		log.Printf("Reading: %s\n", fullPath)
@@ -29,7 +29,7 @@ func (cbz CBZ) BuildIssueFromCBZ(fname, parent string) *view.Issue {
 	return nil
 }
 
-func readCBZFileData(ifn string) view.Issue {
+func readCBZFileData(ifn string) viewmodel.Issue {
 	read, err := zip.OpenReader(ifn)
 	if err != nil {
 		msg := "Failed to open: %s"

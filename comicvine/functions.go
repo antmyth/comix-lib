@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/antmyth/comix-lib/view"
+	"github.com/antmyth/comix-lib/viewmodel"
 )
 
 const apiKey = "abef181d68b7a432d1438bbdddada81849521d24"
@@ -61,8 +61,8 @@ func executeRequest(resource, id string) string {
 	return bodyString
 }
 
-func (cvImg Image) FromComicVine() view.Image {
-	return view.Image{
+func (cvImg Image) FromComicVine() viewmodel.Image {
+	return viewmodel.Image{
 		SmallUrl:    cvImg.SmallUrl,
 		ThumbUrl:    cvImg.ThumbUrl,
 		TinyUrl:     cvImg.TinyUrl,
