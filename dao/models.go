@@ -98,7 +98,7 @@ func FromIssueviewmodel(v viewmodel.Issue) Issue {
 	issue.VolumeAPI = v.VolumeAPI
 	issue.SeriesLocation = v.SeriesLocation
 	issue.Location = v.Location
-	ssi := comicvine.ExtractNumIdFromSiteUrl(v.VolumeAPI)
+	ssi, _ := comicvine.ExtractNumIdFromSiteUrl(v.VolumeAPI)
 	issue.SeriesId = uint(ssi)
 	issue.Images = FromImageviewmodel(v.Images)
 	return issue

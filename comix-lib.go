@@ -26,17 +26,17 @@ func main() {
 	}
 	lib = libz
 
-	ss := lib.GetAllSeries()
+	// ss := lib.GetAllSeries()
 
-	for i, v := range ss {
-		log.Printf("Series[%v] - %v\n", i, v.Series)
-	}
-	si := lib.GetAllIssuesFor(ss[2])
-	for i, v := range si {
-		log.Printf("Issue[%v] - %v:%v\n", i, v.Number, v.Title)
-	}
-	log.Println(lib.GetSeriesByIDWithIssues(ss[16].ID))
-	// BuildLib()
+	// for i, v := range ss {
+	// 	log.Printf("Series[%v] - %v\n", i, v.Series)
+	// }
+	// si := lib.GetAllIssuesFor(ss[2])
+	// for i, v := range si {
+	// 	log.Printf("Issue[%v] - %v:%v\n", i, v.Number, v.Title)
+	// }
+	// log.Println(lib.GetSeriesByIDWithIssues(ss[16].ID))
+	BuildLib()
 }
 
 func BuildLib() {
@@ -54,10 +54,11 @@ func BuildLib() {
 		panic(err)
 	}
 	index := 0
+	log.Printf("Reading input files at : %v\n", cfg.Path)
 	for _, file := range inputFiles {
 		if file.IsDir() {
 			ifn := fmt.Sprintf("%s/%s", cfg.Path, file.Name())
-			log.Printf("Reading: %s\n", ifn)
+			// log.Printf("Reading: %s\n", ifn)
 			infiles, err := ioutil.ReadDir(ifn)
 			for err != nil {
 				fmt.Println(err)
@@ -70,7 +71,9 @@ func BuildLib() {
 					index++
 				}
 				if (index % chunkSize) == 0 {
+					log.Printf("Read %v files with chunkSize=%v\n", index, chunkSize)
 					FilterOutExistingIssues(&newIssues, issues)
+					log.Printf("Found %v new issues to process\n", len(newIssues))
 					issues = make([]viewmodel.Issue, 0)
 					if len(newIssues) >= importSize {
 						break
@@ -92,7 +95,10 @@ func BuildLib() {
 	m := viewmodel.AsSeriesMap(newIssues)
 	series := make([]viewmodel.Series, 0)
 	for _, v := range m {
-		s := comicvine.BuildSeriesFromIssueAndVine(v[0], vine)
+		s, err := comicvine.BuildSeriesFromIssueAndVine(v[0], vine)
+		if err != nil {
+			log.Fatalf("Failed to build series from %+v\n %v\n", v[0], err)
+		}
 		series = append(series, s)
 	}
 
@@ -113,11 +119,15 @@ func BuildLib() {
 func FilterOutExistingIssues(newIssues *[]viewmodel.Issue, issues []viewmodel.Issue) {
 	//check if issue exists on DB
 	for _, v := range issues {
-		id := comicvine.ExtractNumIdFromSiteUrl(v.Web)
-		if lib.GetIssueByID(id) == nil {
-			*newIssues = append(*newIssues, v)
-			log.Printf("New issue to add to the DB:%v\n", id)
+		id, err := comicvine.ExtractNumIdFromSiteUrl(v.Web)
+		if err != nil {
+			log.Printf("Failed to extract vineId from %+v \n%v\n", v, err)
+		} else {
+			if lib.GetIssueByID(id) == nil {
+				*newIssues = append(*newIssues, v)
+				log.Printf("New issue to add to the DB:%v\n", id)
 
+			}
 		}
 	}
 }
@@ -126,6 +136,7 @@ func EnrichIssueWithVineData(issue viewmodel.Issue) viewmodel.Issue {
 	log.Printf("Extracting images for %s", issue.Web)
 	issueKey := comicvine.ExtractIdFromSiteUrl(issue.Web)
 	cvIssue := vine.GetIssue(issueKey)
+	log.Printf("Found vine info for %v\n", cvIssue.Volume.ApiDetailUrl)
 	issue.Images = cvIssue.Image.FromComicVine()
 	issue.ID = cvIssue.ID
 	issue.VolumeAPI = cvIssue.Volume.ApiDetailUrl

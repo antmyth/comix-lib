@@ -8,5 +8,5 @@ database:
 path: "/Volumes/backups/_eComics/_newlib"
 
 import:
-  chunk: 10
-  max: 10
+  chunk: 25
+  max: 50

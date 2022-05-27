@@ -21,7 +21,7 @@ type CBZ struct{}
 func (cbz CBZ) BuildIssueFromCBZ(fname, parent string) *viewmodel.Issue {
 	if !strings.HasPrefix(fname, ".") && strings.HasSuffix(fname, cbzSuffix) {
 		fullPath := fmt.Sprintf("%s/%s", parent, fname)
-		log.Printf("Reading: %s\n", fullPath)
+		// log.Printf("Reading: %s\n", fullPath)
 		issue := readCBZFileData(fullPath)
 		issue.SeriesLocation = parent
 		return &issue
@@ -36,7 +36,7 @@ func readCBZFileData(ifn string) viewmodel.Issue {
 		log.Fatalf(msg, err)
 	}
 	defer read.Close()
-	log.Printf("Reading : %s \n", ifn)
+	// log.Printf("Reading : %s \n", ifn)
 
 	var ci ComicInfo
 	for _, file := range read.File {
@@ -52,7 +52,7 @@ func readCBZFileData(ifn string) viewmodel.Issue {
 	}
 	res := ci.ToIssueDB()
 	res.Location = ifn
-	log.Printf("Read : %+v \n", res)
+	// log.Printf("Read : %+v \n", res)
 
 	return res
 }

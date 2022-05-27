@@ -2,7 +2,6 @@ package cbz
 
 import (
 	"encoding/xml"
-	"strconv"
 
 	"github.com/antmyth/comix-lib/comicvine"
 	"github.com/antmyth/comix-lib/viewmodel"
@@ -60,9 +59,7 @@ func (ci ComicInfo) ToSeriesDB() viewmodel.Series {
 }
 
 func (ci ComicInfo) ToIssueDB() viewmodel.Issue {
-	compoundId := comicvine.ExtractIdFromSiteUrl(ci.Web)
-	sid := comicvine.ExtractIdFromCompoundId(compoundId)
-	id, _ := strconv.Atoi(sid)
+	id, _ := comicvine.ExtractNumIdFromSiteUrl(ci.Web)
 	return viewmodel.Issue{
 		ID:        id,
 		Title:     ci.Title,

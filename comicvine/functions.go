@@ -38,11 +38,8 @@ func buildRequest(resource, key string) string {
 
 func executeRequest(resource, id string) string {
 	req := buildRequest(resource, id)
-	// log.Println(req)
+	// log.Printf("comicvine request:%v\n", req)
 	resp, err := http.Get(req)
-
-	// log.Println(err)
-	// log.Println(resp)
 
 	var bodyString string
 	if err != nil {
@@ -56,6 +53,9 @@ func executeRequest(resource, id string) string {
 			log.Fatal(err)
 		}
 		bodyString = string(bodyBytes)
+		// log.Printf("comicvine response:{{%+v}}\n", bodyString)
+	} else {
+		log.Fatalf("Failed to get data for %v with ID=%v from comicvine\n%v\n", resource, id, resp.StatusCode)
 	}
 
 	return bodyString
