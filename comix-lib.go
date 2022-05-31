@@ -26,7 +26,7 @@ func main() {
 	}
 	lib = libz
 
-	// ss := lib.GetAllSeries()
+	// ss := lib.GetAllSeriesPaginated(3, 10)
 
 	// for i, v := range ss {
 	// 	log.Printf("Series[%v] - %v\n", i, v.Series)

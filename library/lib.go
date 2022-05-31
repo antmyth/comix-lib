@@ -94,7 +94,7 @@ func (lib ComicsLib) GetSeriesByIDWithIssues(id int) *viewmodel.Series {
 func (lib ComicsLib) GetAllSeriesPaginated(page, pageSize int) []viewmodel.Series {
 	var seriesList []dao.Series
 	log.Printf("Finding series: page[%v] & pageSize[%v]\n", page, pageSize)
-	result := db.Order("series").Find(&seriesList).Limit(pageSize).Offset(page * pageSize)
+	result := db.Limit(pageSize).Offset(page * pageSize).Order("series").Find(&seriesList)
 	log.Printf("Found %v series;\n", result.RowsAffected)
 	res := make([]viewmodel.Series, len(seriesList))
 	for i, v := range seriesList {
