@@ -104,8 +104,13 @@ func BuildLib() {
 
 	// store series on DB
 	for _, v := range series {
-		res := lib.InsertSeries(v)
-		log.Printf("Inserted Series %v with success?%v\n", v.ID, res)
+		exists := lib.GetSeriesByID(v.ID)
+		if exists != nil {
+			res := lib.InsertSeries(v)
+			log.Printf("Inserted Series %v with success?%v\n", v.ID, res)
+		} else {
+			log.Printf("Series %v already on the DB?\n", v.ID)
+		}
 	}
 
 	//store issues on DB
@@ -113,7 +118,12 @@ func BuildLib() {
 		res := lib.InsertIssue(v)
 		log.Printf("Inserted Issue %v with success?%v\n", v.ID, res)
 	}
-
+	log.Printf("Updating lib data after importing comix!\n")
+	res := lib.UpdateSeriesCounters()
+	if res != nil {
+		log.Panic(res)
+	}
+	log.Printf("Finished current import!\n")
 }
 
 func FilterOutExistingIssues(newIssues *[]viewmodel.Issue, issues []viewmodel.Issue) {

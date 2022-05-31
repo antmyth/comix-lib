@@ -32,8 +32,7 @@ func (cbz CBZ) BuildIssueFromCBZ(fname, parent string) *viewmodel.Issue {
 func readCBZFileData(ifn string) viewmodel.Issue {
 	read, err := zip.OpenReader(ifn)
 	if err != nil {
-		msg := "Failed to open: %s"
-		log.Fatalf(msg, err)
+		log.Fatalf("Failed to open file : %s\nFound error: %s\n", ifn, err)
 	}
 	defer read.Close()
 	// log.Printf("Reading : %s \n", ifn)
