@@ -175,6 +175,11 @@ func BuildLib() {
 	if res != nil {
 		log.Panic(res)
 	}
+	res = lib.UpdatePublisherCounters()
+	if res != nil {
+		log.Panic(res)
+	}
+
 	log.Printf("Imported %v issues, %v series and %v publishers!\n", len(newIssues), len(series), len(publishers))
 	log.Printf("Finished current import!\n")
 }

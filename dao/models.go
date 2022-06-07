@@ -56,6 +56,7 @@ type Publisher struct {
 	Name        string `gorm:"index"`
 	Description string
 	Images      Image `gorm:"embedded;embeddedPrefix:images_"`
+	SeriesCount int
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -152,6 +153,7 @@ func (s Publisher) AsViewmodel() viewmodel.Publisher {
 		Name:        s.Name,
 		Images:      s.Images.Asviewmodel(),
 		Description: s.Description,
+		SeriesCount: s.SeriesCount,
 	}
 }
 

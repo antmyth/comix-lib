@@ -51,10 +51,12 @@ type Image struct {
 }
 
 type Publisher struct {
-	ID          int    `json:"id,omitempty"`
-	Name        string `json:"name"`
-	Images      Image  `json:"image,omitempty"`
-	Description string `json:"description,omitempty"`
+	ID          int      `json:"id,omitempty"`
+	Name        string   `json:"name"`
+	Images      Image    `json:"image,omitempty"`
+	Description string   `json:"description,omitempty"`
+	SeriesCount int      `json:"series_count,omitempty"`
+	Series      []Series `json:"series,omitempty"`
 }
 
 func (issue Issue) ToString() string {

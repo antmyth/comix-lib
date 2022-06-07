@@ -141,6 +141,17 @@ func (lib ComicsLib) GetAllSeries() []viewmodel.Series {
 	return res
 }
 
+func (lib ComicsLib) GetSeriesByPublisher(pid int) []viewmodel.Series {
+	var seriesList []dao.Series
+	result := db.Order("series").Find(&seriesList).Where("publisher_id = ?", pid)
+	log.Printf("Found %v series;\n", result.RowsAffected)
+	res := make([]viewmodel.Series, len(seriesList))
+	for i, v := range seriesList {
+		res[i] = v.Asviewmodel()
+	}
+	return res
+}
+
 func (lib ComicsLib) UpdateSeriesCounters() error {
 	result := db.Exec("update series as ss set count = (SELECT count(1) from issues where issues.series_id = ss.id)")
 	if result.Error != nil {
@@ -186,4 +197,13 @@ func (lib ComicsLib) GetPublisherByID(id int) *viewmodel.Publisher {
 	}
 	res := ser[0].AsViewmodel()
 	return &res
+}
+
+func (lib ComicsLib) UpdatePublisherCounters() error {
+	result := db.Exec("update publishers as ss set series_count = (SELECT count(1) from series where series.publisher_id = ss.id)")
+	if result.Error != nil {
+		return result.Error
+	}
+	log.Printf("Updated %v publishers;\n", result.RowsAffected)
+	return nil
 }
