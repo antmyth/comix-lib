@@ -141,10 +141,10 @@ func (lib ComicsLib) GetAllSeries() []viewmodel.Series {
 	return res
 }
 
-func (lib ComicsLib) GetSeriesByPublisher(pid int) []viewmodel.Series {
+func (lib ComicsLib) GetSeriesByPublisher(pub viewmodel.Publisher) []viewmodel.Series {
 	var seriesList []dao.Series
-	result := db.Order("series").Find(&seriesList).Where("publisher_id = ?", pid)
-	log.Printf("Found %v series;\n", result.RowsAffected)
+	result := db.Order("series").Where("publisher_id = ?", pub.ID).Find(&seriesList)
+	log.Printf("Found %v series for publisher %v;\n", result.RowsAffected, pub.Name)
 	res := make([]viewmodel.Series, len(seriesList))
 	for i, v := range seriesList {
 		res[i] = v.Asviewmodel()
