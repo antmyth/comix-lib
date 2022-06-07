@@ -3,7 +3,7 @@ package comicvine
 import (
 	"errors"
 	"log"
-	"regexp"
+	"path"
 	"strconv"
 	"strings"
 
@@ -17,8 +17,26 @@ func BuildSeriesFromIssueAndVine(i viewmodel.Issue, vine ComicVine) (viewmodel.S
 	s.Volume = i.Volume
 	s.Location = i.SeriesLocation
 
+	if len(i.VolumeAPI) == 0 {
+		// extract volume data from vine
+		issueId, err := ExtractNumIdFromSiteUrl(i.Web)
+		if err != nil {
+			log.Printf("Error extracting issue id %v : %v\n", i.ID, i.Web)
+			return s, err
+		}
+		vi, err := vine.GetIssueBy(issueId)
+		if err != nil {
+			log.Printf("Error getting issue info %v : %v\n", issueId, vi)
+			return s, err
+		}
+		i.VolumeAPI = vi.Volume.ApiDetailUrl
+	}
 	volKey := ExtractIdFromSiteUrl(i.VolumeAPI)
-	volData := vine.GetVolume(volKey)
+	volData, err := vine.GetVolume(volKey)
+	if err != nil {
+		log.Printf("Error extracting Volume data for %v : %v\n", i.VolumeAPI, i.Series)
+		return s, err
+	}
 	s.Images = volData.Image.FromComicVine()
 	s.TotalCount = volData.CountOfIssues
 	sid, err := ExtractNumIdFromSiteUrl(i.VolumeAPI)
@@ -28,13 +46,15 @@ func BuildSeriesFromIssueAndVine(i viewmodel.Issue, vine ComicVine) (viewmodel.S
 	s.ID = sid
 	s.Web = volData.SiteDetailUrl
 	s.Description = volData.Description
+	s.PublisherId = volData.Publisher.ID
 
 	return s, nil
 }
 
 func ExtractIdFromSiteUrl(url string) string {
-	r, _ := regexp.Compile("\\d{4}-\\d{3,}")
-	issueId := r.FindString(url)
+	issueId := path.Base(url)
+	// r, _ := regexp.Compile("\\d{4}-\\d{3,}")
+	// issueId := r.FindString(url)
 	return issueId
 }
 

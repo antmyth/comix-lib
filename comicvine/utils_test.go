@@ -39,6 +39,13 @@ func TestExtractIdFromSiteUrl(t *testing.T) {
 			},
 			want: "4000-22830",
 		},
+		{
+			name: "5",
+			args: args{
+				url: "https://comicvine.gamespot.com/hellboy-and-the-bprd-1952-1954-1-hc/4000-858823/",
+			},
+			want: "4000-858823",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

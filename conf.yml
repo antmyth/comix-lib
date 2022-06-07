@@ -5,7 +5,7 @@ database:
   user: "postgres"
   password: "abc"
 
-path: "/Volumes/backups/_eComics/_newlib"
+path: "/Volumes/DroboFS/tdb114370578/1/backups/_eComics/_newlib"
 
 import:
   chunk: 25

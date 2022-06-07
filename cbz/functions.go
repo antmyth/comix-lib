@@ -43,9 +43,10 @@ func readCBZFileData(ifn string) viewmodel.Issue {
 			str, err := readStringFile(file)
 			if err != nil {
 				log.Fatalf("Failed to read %s from zip: %s", ifn, err)
-			}
-			if err := xml.Unmarshal([]byte(str), &ci); err != nil {
-				panic(err)
+			} else {
+				if err := xml.Unmarshal([]byte(str), &ci); err != nil {
+					panic(err)
+				}
 			}
 		}
 	}
@@ -77,8 +78,12 @@ func readStringFile(file *zip.File) (string, error) {
 			buffer.Write(readdata)
 		}
 		if err != nil {
-			panic(err)
+			break
 		}
+	}
+	if err != nil {
+		msg := "Failed to read zip %s for reading: %s"
+		return res, fmt.Errorf(msg, file.Name, err)
 	}
 	res = string(buffer.Bytes())
 

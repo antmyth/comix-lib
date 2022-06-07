@@ -18,6 +18,7 @@ type Series struct {
 	Series      string  `json:"series"`
 	Volume      string  `json:"volume,omitempty"`
 	Publisher   string  `json:"publisher,omitempty"`
+	PublisherId int     `json:"publisherId,omitempty"`
 	Count       int     `json:"count"`
 	TotalCount  int     `json:"totalcount"`
 	Web         string  `json:"web,omitempty"`
@@ -49,6 +50,13 @@ type Image struct {
 	OriginalUrl string `json:"original_url,omitempty"`
 }
 
+type Publisher struct {
+	ID          int    `json:"id,omitempty"`
+	Name        string `json:"name"`
+	Images      Image  `json:"image,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
 func (issue Issue) ToString() string {
 	return fmt.Sprintf("%s|%s", issue.Series, issue.Volume)
 }
@@ -62,6 +70,20 @@ func AsSeriesMap(issues []Issue) map[string][]Issue {
 			res[v.ToString()] = ss
 		} else {
 			res[v.ToString()] = []Issue{v}
+		}
+	}
+	return res
+}
+
+func AsPublisherMap(seriesList []Series) map[string][]Series {
+	res := make(map[string][]Series, 0)
+	for _, v := range seriesList {
+		ss, e := res[v.Publisher]
+		if e {
+			ss = append(ss, v)
+			res[v.Publisher] = ss
+		} else {
+			res[v.Publisher] = []Series{v}
 		}
 	}
 	return res

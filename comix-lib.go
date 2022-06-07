@@ -37,6 +37,41 @@ func main() {
 	// }
 	// log.Println(lib.GetSeriesByIDWithIssues(ss[16].ID))
 	BuildLib()
+	// UpdatePublisherInfoFromSeries()
+}
+
+func UpdatePublisherInfoFromSeries() {
+	allSeries := lib.GetAllSeries()
+	publisherCount := 0
+	for _, s := range allSeries {
+		if s.PublisherId == 0 {
+			// series created without any publisher data
+			log.Printf("Series %v has no Publisher data. Retrieving from vine\n", s.Series)
+			v, err := vine.GetVolumeBy(s.ID)
+			if err != nil {
+				log.Printf("[%+v]", err)
+			} else {
+				log.Printf("Retrieved series data from vine: %+v\n", v.Publisher.ID)
+				s.PublisherId = v.Publisher.ID
+				s = lib.UpdateSeries(s)
+			}
+		}
+		log.Printf("Processing publisher id: %v\n", s.PublisherId)
+		dbp := lib.GetPublisherByID(s.PublisherId)
+		if dbp == nil {
+			vineP, err := vine.GetPublisher(s.PublisherId)
+			if err != nil {
+				log.Printf("%v\n", err)
+			}
+			log.Printf("Retrieved publisher data from vine: %v\n", vineP)
+			p := vineP.FromComicVinePublisher()
+			ok := lib.InsertPublisher(p)
+			log.Printf("Inserted Publisher %v with success?%v\n", p.Name, ok > 0)
+			publisherCount += ok
+		} else {
+			log.Printf("Publisher %v:%v already in DB\n", s.PublisherId, s.Publisher)
+		}
+	}
 }
 
 func BuildLib() {
@@ -105,11 +140,11 @@ func BuildLib() {
 	// store series on DB
 	for _, v := range series {
 		exists := lib.GetSeriesByID(v.ID)
-		if exists != nil {
+		if exists == nil {
 			res := lib.InsertSeries(v)
 			log.Printf("Inserted Series %v with success?%v\n", v.ID, res)
 		} else {
-			log.Printf("Series %v already on the DB?\n", v.ID)
+			log.Printf("Series %v already on the DB with name: %v!\n", v.ID, exists.Series)
 		}
 	}
 
@@ -118,11 +153,29 @@ func BuildLib() {
 		res := lib.InsertIssue(v)
 		log.Printf("Inserted Issue %v with success?%v\n", v.ID, res)
 	}
+
+	// generate Publisher list and store on DB
+	pm := viewmodel.AsPublisherMap(series)
+	publishers := make([]viewmodel.Publisher, 0)
+	for _, v := range pm {
+		s, err := vine.GetPublisher(v[0].PublisherId)
+		if err != nil {
+			log.Fatalf("Failed to build publisher from %+v\n %v\n", v[0], err)
+		}
+		p := s.FromComicVinePublisher()
+		publishers = append(publishers, p)
+	}
+	for _, v := range publishers {
+		res := lib.InsertPublisher(v)
+		log.Printf("Inserted Publisher %v with success?%v\n", v.ID, res)
+	}
+
 	log.Printf("Updating lib data after importing comix!\n")
 	res := lib.UpdateSeriesCounters()
 	if res != nil {
 		log.Panic(res)
 	}
+	log.Printf("Imported %v issues, %v series and %v publishers!\n", len(newIssues), len(series), len(publishers))
 	log.Printf("Finished current import!\n")
 }
 
@@ -145,7 +198,10 @@ func FilterOutExistingIssues(newIssues *[]viewmodel.Issue, issues []viewmodel.Is
 func EnrichIssueWithVineData(issue viewmodel.Issue) viewmodel.Issue {
 	log.Printf("Extracting images for %s", issue.Web)
 	issueKey := comicvine.ExtractIdFromSiteUrl(issue.Web)
-	cvIssue := vine.GetIssue(issueKey)
+	cvIssue, err := vine.GetIssue(issueKey)
+	if err != nil {
+		log.Panicf("Error getting issue [%v] data from vine!\nError:%v\n", issue.Web, err)
+	}
 	log.Printf("Found vine info for %v\n", cvIssue.Volume.ApiDetailUrl)
 	issue.Images = cvIssue.Image.FromComicVine()
 	issue.ID = cvIssue.ID

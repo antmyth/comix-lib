@@ -13,18 +13,18 @@ var vine comicvine.ComicVine
 type Series struct {
 	ID          uint `gorm:"primaryKey"`
 	VineId      string
-	Series      string
+	Series      string `gorm:"index"`
 	Volume      string
 	Publisher   string `gorm:"index"`
+	PublisherId uint
 	Count       int
 	TotalCount  int
 	Web         string
 	Location    string
 	Description string
 	Images      Image `gorm:"embedded;embeddedPrefix:images_"`
-	// Issues      []Issue `gorm:"foreignKey:ID"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type Issue struct {
@@ -49,6 +49,15 @@ type Image struct {
 	ThumbUrl    string
 	TinyUrl     string
 	OriginalUrl string
+}
+
+type Publisher struct {
+	ID          uint   `gorm:"primaryKey"`
+	Name        string `gorm:"index"`
+	Description string
+	Images      Image `gorm:"embedded;embeddedPrefix:images_"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (i Image) Asviewmodel() viewmodel.Image {
@@ -117,6 +126,7 @@ func (s Series) Asviewmodel() viewmodel.Series {
 		Images:      s.Images.Asviewmodel(),
 		Location:    s.Location,
 		Description: s.Description,
+		PublisherId: int(s.PublisherId),
 	}
 }
 
@@ -130,6 +140,25 @@ func FromSeriesviewmodel(v viewmodel.Series) Series {
 	s.TotalCount = v.TotalCount
 	s.Web = v.Web
 	s.Location = v.Location
+	s.Description = v.Description
+	s.Images = FromImageviewmodel(v.Images)
+	s.PublisherId = uint(v.PublisherId)
+	return s
+}
+
+func (s Publisher) AsViewmodel() viewmodel.Publisher {
+	return viewmodel.Publisher{
+		ID:          int(s.ID),
+		Name:        s.Name,
+		Images:      s.Images.Asviewmodel(),
+		Description: s.Description,
+	}
+}
+
+func FromPublisherViewmodel(v viewmodel.Publisher) Publisher {
+	s := Publisher{}
+	s.ID = uint(v.ID)
+	s.Name = v.Name
 	s.Description = v.Description
 	s.Images = FromImageviewmodel(v.Images)
 	return s

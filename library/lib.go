@@ -19,7 +19,7 @@ func New() (*ComicsLib, error) {
 	db = dao.GetConnection(cfg)
 
 	//migrate the schema
-	err := db.AutoMigrate(&dao.Series{}, &dao.Issue{})
+	err := db.AutoMigrate(&dao.Series{}, &dao.Issue{}, dao.Publisher{})
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -57,6 +57,20 @@ func (lib ComicsLib) GetAllIssuesFor(series viewmodel.Series) []viewmodel.Issue 
 	return res
 }
 
+func (lib ComicsLib) CountIssues() int {
+	var count int64
+	db.Model(&dao.Issue{}).Count(&count)
+	log.Printf("Found %v issues;\n", count)
+	return int(count)
+}
+
+func (lib ComicsLib) CountIssuesFor(series viewmodel.Series) int {
+	var count int64
+	db.Model(&dao.Issue{}).Where("series_id = ?", series.ID).Count(&count)
+	log.Printf("Found %v issues for %v;\n", count, series.Series)
+	return int(count)
+}
+
 func (lib ComicsLib) InsertIssue(issue viewmodel.Issue) int {
 	dbIss := dao.FromIssueviewmodel(issue)
 	res := db.Create(&dbIss)
@@ -78,6 +92,12 @@ func (lib ComicsLib) GetSeriesByID(id int) *viewmodel.Series {
 	}
 	res := ser[0].Asviewmodel()
 	return &res
+}
+
+func (lib ComicsLib) UpdateSeries(s viewmodel.Series) viewmodel.Series {
+	sdb := dao.FromSeriesviewmodel(s)
+	db.Save(&sdb)
+	return sdb.Asviewmodel()
 }
 
 func (lib ComicsLib) GetSeriesByIDWithIssues(id int) *viewmodel.Series {
@@ -103,6 +123,13 @@ func (lib ComicsLib) GetAllSeriesPaginated(page, pageSize int) []viewmodel.Serie
 	return res
 }
 
+func (lib ComicsLib) CountSeries() int {
+	var count int64
+	db.Model(&dao.Series{}).Count(&count)
+	log.Printf("Found %v series;\n", count)
+	return int(count)
+}
+
 func (lib ComicsLib) GetAllSeries() []viewmodel.Series {
 	var seriesList []dao.Series
 	result := db.Order("series").Find(&seriesList)
@@ -121,4 +148,42 @@ func (lib ComicsLib) UpdateSeriesCounters() error {
 	}
 	log.Printf("Updated %v series;\n", result.RowsAffected)
 	return nil
+}
+
+// ---- Publisher methods
+func (lib ComicsLib) GetAllPublishers() []viewmodel.Publisher {
+	var publisherList []dao.Publisher
+	result := db.Order("name").Find(&publisherList)
+	log.Printf("Found %v publishers;\n", result.RowsAffected)
+	res := make([]viewmodel.Publisher, len(publisherList))
+	for i, v := range publisherList {
+		res[i] = v.AsViewmodel()
+	}
+	return res
+}
+
+func (lib ComicsLib) CountPublishers() int {
+	var count int64
+	db.Model(&dao.Publisher{}).Count(&count)
+	log.Printf("Found %v publishers;\n", count)
+	return int(count)
+}
+
+func (lib ComicsLib) InsertPublisher(publisher viewmodel.Publisher) int {
+	if publisher.ID == 0 {
+		return 0
+	}
+	dbSeries := dao.FromPublisherViewmodel(publisher)
+	res := db.Create(&dbSeries)
+	return int(res.RowsAffected)
+}
+
+func (lib ComicsLib) GetPublisherByID(id int) *viewmodel.Publisher {
+	var ser []dao.Publisher
+	db.Find(&ser, id)
+	if len(ser) == 0 {
+		return nil
+	}
+	res := ser[0].AsViewmodel()
+	return &res
 }
