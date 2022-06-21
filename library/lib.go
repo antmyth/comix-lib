@@ -72,6 +72,9 @@ func (lib ComicsLib) CountIssuesFor(series viewmodel.Series) int {
 }
 
 func (lib ComicsLib) InsertIssue(issue viewmodel.Issue) int {
+	if issue.ID == 0 {
+		return 0
+	}
 	dbIss := dao.FromIssueviewmodel(issue)
 	res := db.Create(&dbIss)
 	return int(res.RowsAffected)
@@ -79,6 +82,9 @@ func (lib ComicsLib) InsertIssue(issue viewmodel.Issue) int {
 
 // ---- Series methods
 func (lib ComicsLib) InsertSeries(series viewmodel.Series) int {
+	if series.ID == 0 {
+		return 0
+	}
 	dbSeries := dao.FromSeriesviewmodel(series)
 	res := db.Create(&dbSeries)
 	return int(res.RowsAffected)

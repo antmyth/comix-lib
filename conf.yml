@@ -9,4 +9,4 @@ path: "/Volumes/DroboFS/tdb114370578/1/backups/_eComics/_newlib"
 
 import:
   chunk: 25
-  max: 50
+  max: 100

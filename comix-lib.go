@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -148,23 +149,34 @@ func BuildLib() {
 		}
 	}
 
+	var errorIssues []viewmodel.Issue
 	//store issues on DB
 	for _, v := range newIssues {
 		res := lib.InsertIssue(v)
 		log.Printf("Inserted Issue %v with success?%v\n", v.ID, res)
+		if res == 0 {
+			errorIssues = append(errorIssues, v)
+		}
 	}
 
 	// generate Publisher list and store on DB
 	pm := viewmodel.AsPublisherMap(series)
 	publishers := make([]viewmodel.Publisher, 0)
 	for _, v := range pm {
-		s, err := vine.GetPublisher(v[0].PublisherId)
-		if err != nil {
-			log.Fatalf("Failed to build publisher from %+v\n %v\n", v[0], err)
+		exists := lib.GetPublisherByID(v[0].PublisherId)
+		if exists == nil {
+			s, err := vine.GetPublisher(v[0].PublisherId)
+			if err != nil {
+				log.Printf("Failed to build publisher from %+v\n %v\n", v[0], err)
+			} else {
+				p := s.FromComicVinePublisher()
+				publishers = append(publishers, p)
+			}
+		} else {
+			log.Printf("Publisher %v already on the DB with name: %v!\n", v[0].PublisherId, exists.Name)
 		}
-		p := s.FromComicVinePublisher()
-		publishers = append(publishers, p)
 	}
+
 	for _, v := range publishers {
 		res := lib.InsertPublisher(v)
 		log.Printf("Inserted Publisher %v with success?%v\n", v.ID, res)
@@ -180,8 +192,21 @@ func BuildLib() {
 		log.Panic(res)
 	}
 
-	log.Printf("Imported %v issues, %v series and %v publishers!\n", len(newIssues), len(series), len(publishers))
+	log.Printf("Imported %v issues, %v series and %v publishers!\n", len(newIssues)-len(errorIssues), len(series), len(publishers))
+	if len(errorIssues) > 0 {
+		outputFile := "issue-import-errors.json"
+		errors := Errors{
+			Issues: errorIssues,
+		}
+		outerror, _ := json.MarshalIndent(errors, "", "  ")
+		ioutil.WriteFile(outputFile, outerror, 0666)
+		log.Printf("Found problems with issues: %v\nList of problems found here:%v\n", len(errorIssues), outputFile)
+	}
 	log.Printf("Finished current import!\n")
+}
+
+type Errors struct {
+	Issues []viewmodel.Issue `json:"issues"`
 }
 
 func FilterOutExistingIssues(newIssues *[]viewmodel.Issue, issues []viewmodel.Issue) {
@@ -194,7 +219,6 @@ func FilterOutExistingIssues(newIssues *[]viewmodel.Issue, issues []viewmodel.Is
 			if lib.GetIssueByID(id) == nil {
 				*newIssues = append(*newIssues, v)
 				log.Printf("New issue to add to the DB:%v\n", id)
-
 			}
 		}
 	}
@@ -202,14 +226,14 @@ func FilterOutExistingIssues(newIssues *[]viewmodel.Issue, issues []viewmodel.Is
 
 func EnrichIssueWithVineData(issue viewmodel.Issue) viewmodel.Issue {
 	log.Printf("Extracting images for %s", issue.Web)
-	issueKey := comicvine.ExtractIdFromSiteUrl(issue.Web)
-	cvIssue, err := vine.GetIssue(issueKey)
+	issueKey, err := comicvine.ExtractNumIdFromSiteUrl(issue.Web)
+	cvIssue, err := vine.GetIssueBy(issueKey)
 	if err != nil {
 		log.Panicf("Error getting issue [%v] data from vine!\nError:%v\n", issue.Web, err)
 	}
 	log.Printf("Found vine info for %v\n", cvIssue.Volume.ApiDetailUrl)
 	issue.Images = cvIssue.Image.FromComicVine()
-	issue.ID = cvIssue.ID
+	issue.ID = issueKey
 	issue.VolumeAPI = cvIssue.Volume.ApiDetailUrl
 	return issue
 }

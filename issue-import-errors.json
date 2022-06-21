@@ -1,0 +1,42 @@
+{
+  "issues": [
+    {
+      "id": 379722,
+      "title": "Books 11 to 15",
+      "series": "Wake Collected Edition",
+      "seriesId": 0,
+      "number": "3",
+      "volume": "2009",
+      "publisher": "Delcourt",
+      "web": "https://comicvine.gamespot.com/wake-collected-edition-1-books-1-to-3/4000-379722/",
+      "volume_api": "https://comicvine.gamespot.com/api/volume/4050-55703/",
+      "image": {
+        "small_url": "https://comicvine.gamespot.com/a/uploads/scale_small/5/55858/2803216-wake__integrale__1___fire_and_cinders___private_collection___gearing_up__2009_11____page_1.jpg",
+        "thumb_url": "https://comicvine.gamespot.com/a/uploads/scale_avatar/5/55858/2803216-wake__integrale__1___fire_and_cinders___private_collection___gearing_up__2009_11____page_1.jpg",
+        "tiny_url": "https://comicvine.gamespot.com/a/uploads/square_mini/5/55858/2803216-wake__integrale__1___fire_and_cinders___private_collection___gearing_up__2009_11____page_1.jpg",
+        "original_url": "https://comicvine.gamespot.com/a/uploads/original/5/55858/2803216-wake__integrale__1___fire_and_cinders___private_collection___gearing_up__2009_11____page_1.jpg"
+      },
+      "seriesLocation": "/Volumes/DroboFS/tdb114370578/1/backups/_eComics/_newlib/Wake Collected Edition (2009)",
+      "location": "/Volumes/DroboFS/tdb114370578/1/backups/_eComics/_newlib/Wake Collected Edition (2009)/Wake Collected Edition Vol.2009 #03 (November, 2009).cbz"
+    },
+    {
+      "id": 379722,
+      "title": "Books 16 to 18",
+      "series": "Wake Collected Edition",
+      "seriesId": 0,
+      "number": "4",
+      "volume": "2009",
+      "publisher": "Delcourt",
+      "web": "https://comicvine.gamespot.com/wake-collected-edition-1-books-1-to-3/4000-379722/",
+      "volume_api": "https://comicvine.gamespot.com/api/volume/4050-55703/",
+      "image": {
+        "small_url": "https://comicvine.gamespot.com/a/uploads/scale_small/5/55858/2803216-wake__integrale__1___fire_and_cinders___private_collection___gearing_up__2009_11____page_1.jpg",
+        "thumb_url": "https://comicvine.gamespot.com/a/uploads/scale_avatar/5/55858/2803216-wake__integrale__1___fire_and_cinders___private_collection___gearing_up__2009_11____page_1.jpg",
+        "tiny_url": "https://comicvine.gamespot.com/a/uploads/square_mini/5/55858/2803216-wake__integrale__1___fire_and_cinders___private_collection___gearing_up__2009_11____page_1.jpg",
+        "original_url": "https://comicvine.gamespot.com/a/uploads/original/5/55858/2803216-wake__integrale__1___fire_and_cinders___private_collection___gearing_up__2009_11____page_1.jpg"
+      },
+      "seriesLocation": "/Volumes/DroboFS/tdb114370578/1/backups/_eComics/_newlib/Wake Collected Edition (2009)",
+      "location": "/Volumes/DroboFS/tdb114370578/1/backups/_eComics/_newlib/Wake Collected Edition (2009)/Wake Collected Edition Vol.2009 #04 (November, 2009).cbz"
+    }
+  ]
+}
